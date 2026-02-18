@@ -1,3 +1,4 @@
+from pathlib import Path
 import sys
 import mne
 import numpy as np
@@ -7,8 +8,9 @@ from PyQt6.QtGui import QIcon
 from scipy.interpolate import make_interp_spline
 import pyqtgraph as pg
 
-
-edf_path = r"D:\Files\KIT\Master\1.Semester\Praktikum - SUS\Dataset\studie001_2019.05.08_10.15.34.edf"
+# Path to the file, where the eeg-data is stored
+BASE_DIR = Path(__file__).resolve().parent
+edf_path = BASE_DIR / "eeg-data.edf"
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -16,12 +18,11 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__()
 
         # Load UI from Qt Designer 6
-        uic.loadUi("main3.ui", self)
+        uic.loadUi("main.ui", self)
 
         # ----------------------------
         # ConfidencePlot setup
         # ----------------------------
-
         # 1. Setup the Layout 
         self.graph = pg.GraphicsLayoutWidget()
         self.graph.setBackground((27, 26, 31))
@@ -34,12 +35,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.plot_area.showGrid(x=False, y=True, alpha=0.2)
 
         # 3. Define Static Data
-        # Example: Time (0 to 10) and Confidence levels
         x = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         y = np.array([50, 55, 45, 70, 85, 80, 95, 90, 92, 85, 88])
 
         # 4. Smooth the Data
-        x_smooth = np.linspace(x.min(), x.max(), 200) # 200points
+        x_smooth = np.linspace(x.min(), x.max(), 200) # 200 points
         spline = make_interp_spline(x, y, k=3) # k=3 creates the smooth "S" curves
         y_smooth = spline(x_smooth)
 
@@ -47,11 +47,9 @@ class MainWindow(QtWidgets.QMainWindow):
         pen = pg.mkPen(color=(0, 255, 255), width=3) # Cyan line
         self.plot_area.plot(x_smooth, y_smooth, pen=pen, antialias=True)
 
-        # Optional: Add a subtle fill under the curve
-        brush = pg.mkBrush(0, 255, 255, 50) # Transparent cyan
+        # Add a subtle fill under the curve
+        brush = pg.mkBrush(0, 255, 255, 50) # color: transparent cyan
         self.plot_area.plot(x_smooth, y_smooth, fillLevel=0, fillBrush=brush)
-
-
 
         # ----------------------------
         # Attach pyqtgraph to plotWidget
@@ -262,10 +260,8 @@ class HistoryWindow(QtWidgets.QWidget):
             QtWidgets.QHeaderView.ResizeMode.Stretch
         )
 
-        # Optional: hide row numbers
+        # Hide row numbers
         self.tableWidget.verticalHeader().setVisible(False)
-
-
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
